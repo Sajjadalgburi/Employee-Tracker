@@ -7,7 +7,7 @@ USE employee_db;
 -- Creating department table
 CREATE TABLE department (
     id INT PRIMARY KEY AUTO_INCREMENT, -- Unique identifier for the department
-    name VARCHAR(30) NOT NULL, -- Name column for department
+    name VARCHAR(30) NOT NULL -- Name column for department
 );
 
 -- Creating role table
@@ -16,7 +16,7 @@ CREATE TABLE role (
     title VARCHAR(30) NOT NULL, -- To hold role title
     salary DECIMAL(10, 2) NOT NULL, -- Salary for the respective employee role 
     department_id INT,
-    FOREIGN KEY (department_id) REFERENCES department(id) -- Hold's reference to department role that it belongs to
+    FOREIGN KEY (department_id) REFERENCES department(id) -- Holds reference to department role that it belongs to
 );
 
 -- Creating employee table
@@ -26,6 +26,5 @@ CREATE TABLE employee (
     last_name VARCHAR(30) NOT NULL, -- To hold employee last  name
     role_id INT,
     FOREIGN KEY (role_id) REFERENCES role(id), -- To hold reference to employee role
-    manager_id INT NULL, -- Employee's can have managers but this filed can still be null if no manager is assigned
+    manager_id INT NULL -- Employee's can have managers but this field can still be null if no manager is assigned
 );
-
