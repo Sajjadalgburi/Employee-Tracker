@@ -44,6 +44,15 @@ function repeatQuestion() {
     ])
     .then(({ chosenOption }) => {
       if (chosenOption === "View All Departments") {
+        db.query(`SELECT * FROM department`, (err, result) => {
+          if (err) {
+            console.error("Error executing query:", err);
+            return;
+          }
+          console.log(result);
+          // You can process the result further here if needed
+          return repeatQuestion();
+        });
       } else {
         console.log("Processing Choice...");
         setTimeout(() => {
