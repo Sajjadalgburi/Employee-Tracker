@@ -1,6 +1,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 require("dotenv").config();
+const Art = require("./UI/EmpolyeeManager"); ///
 
 // Connect to database
 const db = mysql.createConnection(
@@ -16,3 +17,6 @@ const db = mysql.createConnection(
   },
   console.log(`Connected to the employee_db database.`)
 );
+
+// Calling the ASCII ART for nice ART!
+Art;
