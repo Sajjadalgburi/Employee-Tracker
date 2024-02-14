@@ -15,11 +15,11 @@ const db = mysql.createConnection(
     // Database name
     database: process.env.DB_NAME,
   },
-  console.log(`Connected to the employee_db database.`)
+  console.log(`\nConnected to the employee_db database.\n`)
 );
 
 // Calling the ASCII ART for nice ART!
-Art;
+// Art;
 
 const UserChoices = [
   "View All Employees",
@@ -32,25 +32,29 @@ const UserChoices = [
   "Quit",
 ];
 
-inquirer
-  .prompt([
-    {
-      type: "list",
-      name: "chosenOption",
-      message: "What Would You Like to Choose?",
-      choices: UserChoices,
-    },
-  ])
-  .then((answers) => {
-    if (answers.chosenOption === "View All Departments") {
-    } else {
-      console.log("Processing Choice...");
-      setTimeout(() => {
-        console.log("====================");
-        console.log("See You Later Boss!");
-      }, 1500);
-    }
-  })
-  .catch((error) => {
-    console.error("There was an error!");
-  });
+function repeatQuestion() {
+  return inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "chosenOption",
+        message: "What Would You Like to Choose?",
+        choices: UserChoices,
+      },
+    ])
+    .then(({ chosenOption }) => {
+      if (chosenOption === "View All Departments") {
+      } else {
+        console.log("Processing Choice...");
+        setTimeout(() => {
+          console.log("====================");
+          console.log("See You Later Boss!");
+        }, 1500);
+      }
+    })
+    .catch((error) => {
+      console.error("There was an error!");
+    });
+}
+
+repeatQuestion();
