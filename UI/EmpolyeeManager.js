@@ -18,4 +18,4 @@ const Art = function introToInit() {
 module.exports = Art;
 
 // Call the function to log the ASCII art to the console
-Art();
+// Art();
