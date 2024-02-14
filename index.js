@@ -9,11 +9,11 @@ const db = mysql.createConnection(
     // livehost
     host: "localhost",
     // MySQL username,
-    user: DB_USER,
+    user: process.env.DB_USER,
     // MySQL password
-    password: DB_PASSWORD,
+    password: process.env.DB_PASSWORD,
     // Database name
-    database: DB_NAME,
+    database: process.env.DB_NAME,
   },
   console.log(`Connected to the employee_db database.`)
 );
