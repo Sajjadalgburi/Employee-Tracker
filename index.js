@@ -41,7 +41,16 @@ inquirer
       choices: UserChoices,
     },
   ])
-  .then((answers) => {})
+  .then((answers) => {
+    if (answers.chosenOption === "View All Departments") {
+    } else {
+      console.log("Processing Choice...");
+      setTimeout(() => {
+        console.log("====================");
+        console.log("See You Later Boss!");
+      }, 1500);
+    }
+  })
   .catch((error) => {
     console.error("There was an error!");
   });
