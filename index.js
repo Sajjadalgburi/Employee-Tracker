@@ -20,3 +20,28 @@ const db = mysql.createConnection(
 
 // Calling the ASCII ART for nice ART!
 Art;
+
+const UserChoices = [
+  "View All Employees",
+  "Add New Employee",
+  "Update Employee Role",
+  "View All Roles",
+  "Add New Role",
+  "View All Departments",
+  "Add New Department",
+  "Quit",
+];
+
+inquirer
+  .prompt([
+    {
+      type: "list",
+      name: "chosenOption",
+      message: "What Would You Like to Choose?",
+      choices: UserChoices,
+    },
+  ])
+  .then((answers) => {})
+  .catch((error) => {
+    console.error("There was an error!");
+  });
