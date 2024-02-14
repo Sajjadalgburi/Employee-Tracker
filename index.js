@@ -1,7 +1,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 require("dotenv").config();
-const Art = require("./UI/EmpolyeeManager"); ///
+const Art = require("./UI/EmpolyeeManager");
 
 // Connect to database
 const db = mysql.createConnection(
@@ -19,7 +19,18 @@ const db = mysql.createConnection(
 );
 
 // Calling the ASCII ART for nice ART!
-// Art;
+// Art();
+
+function selectEvrFromDep() {
+  db.query(`SELECT * FROM department`, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return;
+    }
+    console.log(result);
+    repeatQuestion();
+  });
+}
 
 const UserChoices = [
   "View All Employees",
@@ -44,15 +55,7 @@ function repeatQuestion() {
     ])
     .then(({ chosenOption }) => {
       if (chosenOption === "View All Departments") {
-        db.query(`SELECT * FROM department`, (err, result) => {
-          if (err) {
-            console.error("Error executing query:", err);
-            return;
-          }
-          console.log(result);
-          // You can process the result further here if needed
-          return repeatQuestion();
-        });
+        selectEvrFromDep();
       } else {
         console.log("Processing Choice...");
         setTimeout(() => {
