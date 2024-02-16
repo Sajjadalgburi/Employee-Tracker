@@ -95,34 +95,33 @@ const UserChoices = [
   "Quit",
 ];
 
-function repeatQuestion() {
-  return inquirer
-    .prompt([
+async function repeatQuestion() {
+  try {
+    const { chosenOption } = await inquirer.prompt([
       {
         type: "list",
         name: "chosenOption",
         message: "What Would You Like to Choose?",
         choices: UserChoices,
       },
-    ])
-    .then(({ chosenOption }) => {
-      if (chosenOption === "View All Departments") {
-        selectEvrFromDep();
-      } else if (chosenOption === "View All Roles") {
-        selectEvrFromRoles();
-      } else if (chosenOption === "View All Employees") {
-        selectEvrFromEmployees();
-      } else {
-        console.log("Processing Choice...");
-        setTimeout(() => {
-          console.log("====================");
-          console.log("See You Later Boss!");
-        }, 1500);
-      }
-    })
-    .catch((err) => {
-      console.error(`There was an error at ${err}`);
-    });
+    ]);
+
+    if (chosenOption === "View All Departments") {
+      selectEvrFromDep();
+    } else if (chosenOption === "View All Roles") {
+      selectEvrFromRoles();
+    } else if (chosenOption === "View All Employees") {
+      selectEvrFromEmployees();
+    } else {
+      console.log("Processing Choice...");
+      setTimeout(() => {
+        console.log("====================");
+        console.log("See You Later Boss!");
+      }, 1500);
+    }
+  } catch (err) {
+    console.error(`There was an error at ${err}`);
+  }
 }
 
 repeatQuestion();
