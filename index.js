@@ -1,36 +1,36 @@
 const inquirer = require("inquirer");
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 require("dotenv").config();
 const Art = require("./UI/EmpolyeeManager");
 
-// Connect to database
-const db = mysql.createConnection(
-  {
-    // livehost
-    host: "localhost",
-    // MySQL username,
-    user: process.env.DB_USER,
-    // MySQL password
-    password: process.env.DB_PASSWORD,
-    // Database name
-    database: process.env.DB_NAME,
-  },
-  console.log(`\nConnected to the employee_db database.\n`)
-);
+// Create a connection pool
+const pool = mysql.createPool({
+  // livehost
+  host: "localhost",
+  // MySQL username
+  user: process.env.DB_USER,
+  // MySQL password
+  password: process.env.DB_PASSWORD,
+  // Database name
+  database: process.env.DB_NAME,
+});
 
 // Calling the ASCII ART for nice ART!
 // Art();
 
-function selectEvrFromDep() {
-  db.query(`SELECT * FROM department`, (err, result) => {
-    if (err) {
-      console.error("Error executing query:", err);
-      return;
-    }
-    console.log(result);
+const selectEvrFromDep = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute("SELECT * FROM department");
+    console.log(rows);
     repeatQuestion();
-  });
-}
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
 
 const UserChoices = [
   "View All Employees",
@@ -56,6 +56,8 @@ function repeatQuestion() {
     .then(({ chosenOption }) => {
       if (chosenOption === "View All Departments") {
         selectEvrFromDep();
+      } else if (chosenOption === "View All Roles") {
+        selectEvrFromRoles();
       } else {
         console.log("Processing Choice...");
         setTimeout(() => {
@@ -64,8 +66,8 @@ function repeatQuestion() {
         }, 1500);
       }
     })
-    .catch((error) => {
-      console.error("There was an error!");
+    .catch((err) => {
+      console.error(`There was an error at ${err}`);
     });
 }
 
