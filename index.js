@@ -32,6 +32,23 @@ const selectEvrFromDep = async () => {
   }
 };
 
+const selectEvrFromRoles = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute(`
+SELECT role.id, role.title, department.name AS department, role.salary
+FROM role
+INNER JOIN department ON role.department_id = department.id;`);
+    console.log(rows);
+    repeatQuestion();
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 const UserChoices = [
   "View All Employees",
   "Add New Employee",
