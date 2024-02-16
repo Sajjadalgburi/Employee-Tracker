@@ -84,6 +84,83 @@ LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
   }
 };
 
+//? ──────────────────────────────────────────────────────────────────────────────── ?
+// Function to insert a new department into the database
+const insertIntoDep = async (departmentName) => {
+  let connection;
+  try {
+    // Establishing a database connection
+    connection = await pool.getConnection();
+
+    // Executing SQL query to insert a new department into the 'department' table
+    const [rows, fields] = await connection.execute(
+      `INSERT INTO department (name) VALUES (?)`,
+      [departmentName]
+    );
+
+    // Logging the results of the query
+    console.log("\n");
+    console.log("Results:");
+    console.log(rows);
+    console.log("\n");
+
+    // Prompting user for further action
+    repeatQuestion();
+  } catch (error) {
+    // Handling errors that occur during the execution of the query
+    console.error("Error executing query:", error.message);
+  } finally {
+    // Releasing the database connection when done, regardless of success or failure
+    if (connection) connection.release();
+  }
+};
+
+// Function to prompt the user for a new department name and insert it into the database
+const newDepartment = async () => {
+  try {
+    // Prompting user for department name using inquirer module
+    const { departmentName } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "departmentName",
+        message: "What is the Name of the Department?",
+        // Validation function to ensure the department name is valid
+        validate: function (value) {
+          if (!value.trim()) {
+            return "Department name cannot be empty!";
+          }
+          // Check if the value contains only numbers
+          if (/\d/.test(value)) {
+            return "Department name cannot contain numbers!";
+          }
+
+          return true; // Return true if validation passes
+        },
+      },
+    ]);
+
+    // Function to capitalize the first letter of a string
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Capitalizing the first letter of the department name
+    const upperCase = capitalize(departmentName);
+
+    // Calling the function to insert the department into the database
+    insertIntoDep(departmentName);
+
+    // Logging the successful addition of the department to the database
+    console.log(`\nAdded ${upperCase} to the Database\n`);
+
+    // Prompting user for further action
+    repeatQuestion();
+  } catch (err) {
+    // Handling errors that occur during the process
+    console.error(`There was an error: ${err}`);
+  }
+};
+
 const UserChoices = [
   "View All Employees",
   "Add New Employee",
@@ -112,6 +189,8 @@ async function repeatQuestion() {
       selectEvrFromRoles();
     } else if (chosenOption === "View All Employees") {
       selectEvrFromEmployees();
+    } else if (chosenOption === "Add New Department") {
+      newDepartment();
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
