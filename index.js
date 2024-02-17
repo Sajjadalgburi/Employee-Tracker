@@ -258,6 +258,57 @@ const newRole = async () => {
   }
 };
 
+const newEmployee = async () => {
+  try {
+    const { first_name, last_name, role_id, manager_id } =
+      await inquirer.prompt([
+        {
+          type: "input",
+          name: "first_name",
+          message: "What is the employee's first name?",
+          validate: function (value) {
+            if (!value.trim()) {
+              return "Role name cannot be empty!";
+            }
+            if (/\d/.test(value)) {
+              return "Role name cannot contain numbers!";
+            }
+            return true;
+          },
+        },
+        {
+          type: "input",
+          name: "last_name",
+          message: "What is the employee's last name?",
+          validate: function (value) {
+            if (!value.trim()) {
+              return "Role name cannot be empty!";
+            }
+            if (/\d/.test(value)) {
+              return "Role name cannot contain numbers!";
+            }
+            return true;
+          },
+        },
+        {
+          type: "list",
+          name: "role_id",
+          message: "What is the employee's role?",
+          choices: [],
+        },
+        {
+          type: "list",
+          name: "manager_id",
+          message: "What is the employee's role?",
+          choices: [],
+        },
+      ]);
+  } catch (err) {
+    console.error("Error fetching departments:", error.message);
+    return []; // return an empty array if there's an error
+  }
+};
+
 const UserChoices = [
   "View All Employees",
   "Add New Employee",
@@ -290,6 +341,8 @@ async function repeatQuestion() {
       await newDepartment();
     } else if (chosenOption === "Add New Role") {
       await newRole();
+    } else if (chosenOption === "Add New Employee") {
+      await newEmployee();
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
