@@ -156,6 +156,25 @@ const newDepartment = async () => {
   }
 };
 
+const insertIntoRole = async (newRoleTitle, salary, department_id) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    // Corrected query syntax
+    const [rows, fields] = await connection.execute(
+      `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+      [newRoleTitle, salary, department_id]
+    );
+    console.log("\nResults:");
+    console.log(rows);
+    console.log("\n");
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 const newRole = async () => {
   try {
     const { newRoleTitle, salary, department } = await inquirer.prompt([
@@ -194,6 +213,11 @@ const newRole = async () => {
         choices: [],
       },
     ]);
+
+    const upperCase = capitalize(newRoleTitle);
+
+    // Pass department name instead of department object
+    insertIntoRole(newRoleTitle, salary, department_id);
 
     console.log(`\nAdded ${upperCase} to the Database\n`);
   } catch (err) {
