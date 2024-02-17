@@ -101,6 +101,7 @@ const insertIntoDep = async (departmentName) => {
     console.log("\n");
 
     // Prompting user for further action
+    repeatQuestion();
   } catch (error) {
     // Handling errors that occur during the execution of the query
     console.error("Error executing query:", error.message);
@@ -149,7 +150,6 @@ const newDepartment = async () => {
     console.log(`\nAdded ${upperCase} to the Database\n`);
 
     // Prompting user for further action
-    repeatQuestion();
   } catch (err) {
     // Handling errors that occur during the process
     console.error(`There was an error: ${err}`);
@@ -182,6 +182,9 @@ const insertIntoRole = async (newRoleTitle, salary, department_id) => {
     console.log("\nResults:");
     console.log(rows);
     console.log("\n");
+
+    // Prompting user for further action
+    repeatQuestion();
   } catch (error) {
     console.error("Error executing query:", error.message);
   } finally {
@@ -272,6 +275,25 @@ const availableRole = async () => {
   }
 };
 
+const availableManager = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute("SELECT * FROM employee");
+    return rows.map(({ id, first_name, last_name, manager_id }) => ({
+      id,
+      first_name,
+      last_name,
+      manager_id,
+    }));
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    return []; // return an empty array if there's an error
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 const insertIntoEmployee = async (
   first_name,
   last_name,
@@ -298,36 +320,39 @@ const insertIntoEmployee = async (
 
 const newEmployee = async () => {
   try {
-    const { first_name, last_name, role_id, manager_id } =
+    const { first_name, last_name, role_id, manager_choice } =
       await inquirer.prompt([
+        // input prompts for first_name, last_name, and role_id
         {
           type: "input",
           name: "first_name",
           message: "What is the employee's first name?",
           validate: function (value) {
             if (!value.trim()) {
-              return "Role name cannot be empty!";
+              return "First name cannot be empty!";
             }
             if (/\d/.test(value)) {
-              return "Role name cannot contain numbers!";
+              return "First name cannot contain numbers!";
             }
             return true;
           },
         },
+        // input prompt for last_name
         {
           type: "input",
           name: "last_name",
           message: "What is the employee's last name?",
           validate: function (value) {
             if (!value.trim()) {
-              return "Role name cannot be empty!";
+              return "Last name cannot be empty!";
             }
             if (/\d/.test(value)) {
-              return "Role name cannot contain numbers!";
+              return "Last name cannot contain numbers!";
             }
             return true;
           },
         },
+        // list prompt for role_id
         {
           type: "list",
           name: "role_id",
@@ -338,39 +363,56 @@ const newEmployee = async () => {
               return RoleName.map((role) => role.title);
             } catch (error) {
               console.error("Error fetching RoleName:", error.message);
-              return []; // return an empty array if there's an error
+              return [];
             }
           },
         },
+        // list prompt for manager_choice
         {
           type: "list",
-          name: "manager_id",
-          message: "What is the employee's role?",
+          name: "manager_choice",
+          message: "Does the employee have a manager?",
+          choices: ["None", "Yes"],
+        },
+      ]);
+
+    let manager_id = null;
+    if (manager_choice === "Yes") {
+      const { manager_name } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "manager_name",
+          message: "Who is the employee's manager?",
           choices: async () => {
             try {
-              const managerName = await availableManager();
-              return managerName.map((manager) => manager.manager_id);
+              const managerNames = await availableManager();
+              return managerNames.map(({ id, first_name, last_name }) => ({
+                name: `${first_name} ${last_name}`,
+                value: id, // manager ID is used as the value
+              }));
             } catch (error) {
               console.error("Error fetching managerName:", error.message);
-              return []; // return an empty array if there's an error
+              return [];
             }
           },
         },
       ]);
+      manager_id = manager_name;
+    }
 
-    // Find the selected role by name
     const selectedRole = (await availableRole()).find(
       (role) => role.title === role_id
     );
 
     const { id: title } = selectedRole;
 
-    insertIntoEmployee(first_name, last_name, title, manager_id);
+    await insertIntoEmployee(first_name, last_name, title, manager_id);
 
+    // Prompting user for further action
+    // repeatQuestion();
     console.log(`\nAdded ${first_name} ${last_name} to the Database\n`);
   } catch (err) {
-    console.error("Error fetching departments:", error.message);
-    return []; // return an empty array if there's an error
+    console.error("Error inserting employee:", err.message);
   }
 };
 
@@ -407,7 +449,7 @@ async function repeatQuestion() {
     } else if (chosenOption === "Add New Role") {
       await newRole();
     } else if (chosenOption === "Add New Employee") {
-      await newEmployee();
+      await newEmployee().then(() => repeatQuestion());
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
