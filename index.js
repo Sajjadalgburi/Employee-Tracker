@@ -15,9 +15,6 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
 });
 
-// Calling the ASCII ART for nice ART!
-// Art();
-
 const selectEvrFromDep = async () => {
   let connection;
   try {
@@ -84,7 +81,6 @@ LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
   }
 };
 
-//? ──────────────────────────────────────────────────────────────────────────────── ?
 // Function to insert a new department into the database
 const insertIntoDep = async (departmentName) => {
   let connection;
@@ -105,7 +101,6 @@ const insertIntoDep = async (departmentName) => {
     console.log("\n");
 
     // Prompting user for further action
-    repeatQuestion();
   } catch (error) {
     // Handling errors that occur during the execution of the query
     console.error("Error executing query:", error.message);
@@ -161,6 +156,51 @@ const newDepartment = async () => {
   }
 };
 
+const newRole = async () => {
+  try {
+    const { newRoleTitle, salary, department } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "newRoleTitle",
+        message: "What is the Name of the New Role?",
+        validate: function (value) {
+          if (!value.trim()) {
+            return "Role name cannot be empty!";
+          }
+          if (/\d/.test(value)) {
+            return "Role name cannot contain numbers!";
+          }
+          return true;
+        },
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the Salary for this Role?",
+        validate: function (value) {
+          if (!value.trim()) {
+            return "Role salary cannot be empty!";
+          }
+          if (!/^\d+$/.test(value)) {
+            return "Salary should only contain numbers!";
+          }
+          return true;
+        },
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "Select a department:",
+        choices: [],
+      },
+    ]);
+
+    console.log(`\nAdded ${upperCase} to the Database\n`);
+  } catch (err) {
+    console.error(`There was an error: ${err}`);
+  }
+};
+
 const UserChoices = [
   "View All Employees",
   "Add New Employee",
@@ -191,6 +231,8 @@ async function repeatQuestion() {
       selectEvrFromEmployees();
     } else if (chosenOption === "Add New Department") {
       newDepartment();
+    } else if (chosenOption === "Add New Role") {
+      newRole();
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
@@ -202,5 +244,8 @@ async function repeatQuestion() {
     console.error(`There was an error at ${err}`);
   }
 }
+
+// Calling the ASCII ART for nice ART!
+// Art();
 
 repeatQuestion();
