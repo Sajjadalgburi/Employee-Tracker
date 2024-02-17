@@ -281,15 +281,15 @@ async function repeatQuestion() {
     ]);
 
     if (chosenOption === "View All Departments") {
-      selectEvrFromDep();
+      await selectEvrFromDep();
     } else if (chosenOption === "View All Roles") {
-      selectEvrFromRoles();
+      await selectEvrFromRoles();
     } else if (chosenOption === "View All Employees") {
-      selectEvrFromEmployees();
+      await selectEvrFromEmployees();
     } else if (chosenOption === "Add New Department") {
-      newDepartment();
+      await newDepartment();
     } else if (chosenOption === "Add New Role") {
-      newRole();
+      await newRole();
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
