@@ -258,6 +258,20 @@ const newRole = async () => {
   }
 };
 
+const availableRole = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute("SELECT * FROM role");
+    return rows.map(({ id, title }) => ({ id, title }));
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    return []; // return an empty array if there's an error
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 const insertIntoEmployee = async (
   first_name,
   last_name,
@@ -318,17 +332,40 @@ const newEmployee = async () => {
           type: "list",
           name: "role_id",
           message: "What is the employee's role?",
-          choices: [],
+          choices: async () => {
+            try {
+              const RoleName = await availableRole();
+              return RoleName.map((role) => role.title);
+            } catch (error) {
+              console.error("Error fetching RoleName:", error.message);
+              return []; // return an empty array if there's an error
+            }
+          },
         },
         {
           type: "list",
           name: "manager_id",
           message: "What is the employee's role?",
-          choices: [],
+          choices: async () => {
+            try {
+              const managerName = await availableManager();
+              return managerName.map((manager) => manager.manager_id);
+            } catch (error) {
+              console.error("Error fetching managerName:", error.message);
+              return []; // return an empty array if there's an error
+            }
+          },
         },
       ]);
 
-    insertIntoEmployee(first_name, last_name, role_id, manager_id);
+    // Find the selected role by name
+    const selectedRole = (await availableRole()).find(
+      (role) => role.title === role_id
+    );
+
+    const { id: title } = selectedRole;
+
+    insertIntoEmployee(first_name, last_name, title, manager_id);
 
     console.log(`\nAdded ${first_name} ${last_name} to the Database\n`);
   } catch (err) {
