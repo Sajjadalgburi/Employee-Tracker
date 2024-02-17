@@ -258,6 +258,30 @@ const newRole = async () => {
   }
 };
 
+const insertIntoEmployee = async (
+  first_name,
+  last_name,
+  role_id,
+  manager_id
+) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    // Corrected query syntax
+    const [rows, fields] = await connection.execute(
+      `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`,
+      [first_name, last_name, role_id, manager_id]
+    );
+    console.log("\nResults:");
+    console.log(rows);
+    console.log("\n");
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 const newEmployee = async () => {
   try {
     const { first_name, last_name, role_id, manager_id } =
@@ -303,6 +327,10 @@ const newEmployee = async () => {
           choices: [],
         },
       ]);
+
+    insertIntoEmployee(first_name, last_name, role_id, manager_id);
+
+    console.log(`\nAdded ${first_name} ${last_name} to the Database\n`);
   } catch (err) {
     console.error("Error fetching departments:", error.message);
     return []; // return an empty array if there's an error
