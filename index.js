@@ -156,6 +156,20 @@ const newDepartment = async () => {
   }
 };
 
+const availableDepartment = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute("SELECT * FROM department");
+    return rows.map(({ id, name }) => ({ id, name }));
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    return []; // return an empty array if there's an error
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 const insertIntoRole = async (newRoleTitle, salary, department_id) => {
   let connection;
   try {
@@ -210,9 +224,28 @@ const newRole = async () => {
         type: "list",
         name: "department",
         message: "Select a department:",
-        choices: [],
+        choices: async () => {
+          try {
+            const departments = await availableDepartment();
+            return departments.map((dep) => dep.name);
+          } catch (error) {
+            console.error("Error fetching departments:", error.message);
+            return []; // return an empty array if there's an error
+          }
+        },
       },
     ]);
+
+    // Find the selected department by name
+    const selectedDepartment = (await availableDepartment()).find(
+      (dep) => dep.name === department
+    );
+
+    const { id: department_id } = selectedDepartment;
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 
     const upperCase = capitalize(newRoleTitle);
 
