@@ -416,6 +416,98 @@ const newEmployee = async () => {
   }
 };
 
+const availableEmployee = async () => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute("SELECT * FROM employee");
+    return rows.map(({ id, first_name, last_name }) => ({
+      id,
+      first_name,
+      last_name,
+    }));
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+    return []; // return an empty array if there's an error
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const updateRole = async (employeeId, roleId) => {
+  // Changed 'title' parameter to 'roleId'
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [rows, fields] = await connection.execute(
+      `UPDATE employee SET role_id = ? WHERE id = ?`, // Updated 'title' to 'role_id'
+      [roleId, employeeId] // Updated the parameters accordingly
+    );
+    console.log("\nResults:");
+    console.log(rows);
+    console.log("\n");
+  } catch (error) {
+    console.error("Error executing query:", error.message);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const updateEmployeeRole = async () => {
+  try {
+    const { employee, newRole } = await inquirer.prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Which employee's role do you want to update?",
+        choices: async () => {
+          try {
+            const employees = await availableEmployee();
+            return employees.map(({ id, first_name, last_name }) => ({
+              name: `${first_name} ${last_name}`,
+              value: id,
+            }));
+          } catch (error) {
+            console.error("Error fetching employee name:", error.message);
+            return [];
+          }
+        },
+      },
+      {
+        type: "list",
+        name: "newRole",
+        message: "Which role do you want to assign the selected employee?",
+        choices: async () => {
+          try {
+            const roles = await availableRole();
+            return roles.map((role) => role.title);
+          } catch (error) {
+            console.error("Error fetching RoleName:", error.message);
+            return [];
+          }
+        },
+      },
+    ]);
+
+    const selectedRole = (await availableRole()).find(
+      (role) => role.title === newRole
+    );
+
+    if (!selectedRole) {
+      console.error("Selected role does not exist.");
+      return;
+    }
+
+    const { id: roleId } = selectedRole;
+
+    await updateRole(employee, roleId);
+
+    console.log(`\nUpdated Employee's Role\n`);
+  } catch (err) {
+    console.error("Error updating employee:", err.message);
+  }
+};
+
 const UserChoices = [
   "View All Employees",
   "Add New Employee",
@@ -450,6 +542,8 @@ async function repeatQuestion() {
       await newRole();
     } else if (chosenOption === "Add New Employee") {
       await newEmployee().then(() => repeatQuestion());
+    } else if (chosenOption === "Update Employee Role") {
+      await updateEmployeeRole();
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
