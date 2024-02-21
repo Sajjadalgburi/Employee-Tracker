@@ -2,6 +2,7 @@ const inquirer = require("inquirer");
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 const Art = require("./UI/EmpolyeeManager");
+const cTable = require("console.table");
 
 // Create a connection pool
 const pool = mysql.createPool({
@@ -21,8 +22,8 @@ const selectEvrFromDep = async () => {
     connection = await pool.getConnection();
     const [rows, fields] = await connection.execute("SELECT * FROM department");
     console.log("\n");
-    console.log("Results:");
-    console.log(rows);
+    console.log("Results:\n");
+    console.table(rows);
     console.log("\n");
     repeatQuestion();
   } catch (error) {
@@ -41,8 +42,8 @@ SELECT role.id, role.title, department.name AS department, role.salary
 FROM role
 INNER JOIN department ON role.department_id = department.id;`);
     console.log("\n");
-    console.log("Results:");
-    console.log(rows);
+    console.log("Results:\n");
+    console.table(rows);
     console.log("\n");
     repeatQuestion();
   } catch (error) {
@@ -70,8 +71,9 @@ INNER JOIN department ON role.department_id = department.id
 LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
 `);
     console.log("\n");
-    console.log("Results:");
-    console.log(rows);
+    console.log("Results:\n");
+
+    console.table(rows);
     console.log("\n");
     repeatQuestion();
   } catch (error) {
@@ -96,10 +98,10 @@ const insertIntoDep = async (departmentName) => {
 
     // Logging the results of the query
     console.log("\n");
-    console.log("Results:");
-    console.log(rows);
-    console.log("\n");
+    console.log("Results:\n");
 
+    console.table(rows);
+    console.log("\n");
     // Prompting user for further action
     repeatQuestion();
   } catch (error) {
@@ -179,10 +181,10 @@ const insertIntoRole = async (newRoleTitle, salary, department_id) => {
       `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
       [newRoleTitle, salary, department_id]
     );
-    console.log("\nResults:");
-    console.log(rows);
-    console.log("\n");
+    console.log("Results:\n");
 
+    console.table(rows);
+    console.log("\n");
     // Prompting user for further action
     repeatQuestion();
   } catch (error) {
@@ -308,8 +310,9 @@ const insertIntoEmployee = async (
       `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`,
       [first_name, last_name, role_id, manager_id]
     );
-    console.log("\nResults:");
-    console.log(rows);
+    console.log("Results:\n");
+
+    console.table(rows);
     console.log("\n");
   } catch (error) {
     console.error("Error executing query:", error.message);
@@ -443,8 +446,9 @@ const updateRole = async (employeeId, roleId) => {
       `UPDATE employee SET role_id = ? WHERE id = ?`, // Updated 'title' to 'role_id'
       [roleId, employeeId] // Updated the parameters accordingly
     );
-    console.log("\nResults:");
-    console.log(rows);
+    console.log("Results:\n");
+
+    console.table(rows);
     console.log("\n");
   } catch (error) {
     console.error("Error executing query:", error.message);
