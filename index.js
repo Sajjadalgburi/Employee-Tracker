@@ -447,7 +447,6 @@ const updateRole = async (employeeId, roleId) => {
       [roleId, employeeId] // Updated the parameters accordingly
     );
     console.log("Results:\n");
-
     console.table(rows);
     console.log("\n");
   } catch (error) {
@@ -547,7 +546,7 @@ async function repeatQuestion() {
     } else if (chosenOption === "Add New Employee") {
       await newEmployee().then(() => repeatQuestion());
     } else if (chosenOption === "Update Employee Role") {
-      await updateEmployeeRole();
+      await updateEmployeeRole().then(() => repeatQuestion());
     } else {
       console.log("Processing Choice...");
       setTimeout(() => {
