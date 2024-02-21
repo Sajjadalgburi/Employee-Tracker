@@ -560,6 +560,6 @@ async function repeatQuestion() {
 }
 
 // Calling the ASCII ART for nice ART!
-// Art();
+Art();
 
 repeatQuestion();
